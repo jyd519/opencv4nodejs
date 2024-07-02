@@ -73,6 +73,14 @@ npm link
 build-opencv --version 4.6.0 rebuild
 ```
 
+#### 4) use cmake and conan
+
+```bash
+conan install . --build=missing -of build
+cmake-js --CDCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake
+cmake-js -a ia32 --CDCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake --runtime=electron --runtime-version=15.4.0
+```
+
 ** make it portable use Docker **
 You can also use my [docker image](https://hub.docker.com/repository/docker/urielch/opencv-nodejs) I use it on my raspberry Pi 4, and build them on an ~~Oracle Ampere~~ (they delete all my stuff and do not reply to my requests) Mac Mini M1
 

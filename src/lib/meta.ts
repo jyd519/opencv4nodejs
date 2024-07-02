@@ -9,7 +9,7 @@ export function getDirName(): string {
       } else {
         // @ts-ignore
         return fileURLToPath(new URL('.', import.meta.url));
-      }    
+      }
 }
 
 export function getRequire(): NodeRequire {

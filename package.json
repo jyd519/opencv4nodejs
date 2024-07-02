@@ -17,6 +17,9 @@
     "typescript"
   ],
   "type": "commonjs",
+  "opencv4nodejs": {
+    "disableAutoBuild": "1"
+  },
   "exports": {
     ".": {
       "types": "./typings/index.d.ts",
@@ -46,8 +49,10 @@
   "typings": "./typings/index.d.ts",
   "scripts": {
     "build": "tsc --pretty --project tsconfig.json && tsc --pretty --project tsconfig-esm.json && npm run copyfile",
+    "build-cjs": "tsc --pretty --project tsconfig.json && npm run copycjs",
     "build-types": "rimraf types && tsc --pretty --project tsconfig-types.json",
     "copyfile": "shx cp extra/meta.mjs esm/lib/meta.js && shx cp extra/meta.cjs cjs/lib/meta.js",
+    "copycjs": "shx cp extra/meta.cjs cjs/lib/meta.js",
     "prepack": "npm run build",
     "install_old": "node bin/install.js auto",
     "install_Mac": "CXXFLAGS=\"-std=c++17 -Wno-c++11-narrowing -Wno-c++17-extensions -Wno-c++17-attribute-extensions\" node ./bin/install.js --version 4.5.3 build",
@@ -70,7 +75,6 @@
     "publish-next": "npm publish --dry-run --tag next"
   },
   "dependencies": {
-    "@u4/opencv-build": "1.1.0",
     "eslint": "^9.4.0",
     "glob": "^10.4.1",
     "nan": "^2.20.0",
