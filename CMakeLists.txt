@@ -2,21 +2,19 @@ cmake_minimum_required(VERSION 3.28)
 cmake_policy(SET CMP0091 NEW)
 cmake_policy(SET CMP0042 NEW)
 
-project (opencv4nodejs)
+project (opencv4)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CMAKE_CXX_STANDARD 17)
 
-# add_definitions(-DNAPI_VERSION=4)
-
 if (WIN32)
-  # set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   add_compile_definitions(UNICODE _UNICODE)
 endif()
 
-find_package(opencv)
+find_package(OpenCV)
 
 set(SOURCE_FILES
 			"cc/opencv4nodejs.cc"

@@ -10,12 +10,20 @@ const logDebug = process.env.OPENCV4NODES_DEBUG_REQUIRE ? console.log : () => { 
 export function getOpenCV(opt?: any): OpenCVType {
   let opencvBuild: OpenCVType | null = null;
   let requirePath = '';
-  const dirname = getDirName();
-  requirePath = path.join(dirname, '../../build/Debug/opencv4nodejs.node');
-  if (!fs.existsSync(requirePath)) {
-    requirePath = path.join(dirname, '../../build/Release/opencv4nodejs.node');
+  if ((process as any)["resourcesPath"]) {
+    requirePath = path.join((process as any).resourcesPath , "opencv4.node");
   }
-  requirePath = requirePath.replace(/\.node$/, '');
+
+  if (!fs.existsSync(requirePath)) {
+    const dirname = getDirName();
+    const build = process.arch === "x64" ? "build64" : "build";
+    requirePath = path.join(dirname, `../../${build}/Debug/opencv4.node`);
+    if (!fs.existsSync(requirePath)) {
+      requirePath = path.join(dirname, `../../${build}/Release/opencv4.node`);
+    }
+    requirePath = requirePath.replace(/\.node$/, '');
+  }
+
   try {
       logDebug('require', `require path is ${requirePath}`);
       opencvBuild = getRequire()(requirePath);
