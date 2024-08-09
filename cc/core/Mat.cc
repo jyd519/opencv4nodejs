@@ -141,6 +141,7 @@ NAN_MODULE_INIT(Mat::Init) {
   Nan::SetPrototypeMethod(ctor, "getData", GetData);
   Nan::SetPrototypeMethod(ctor, "getDataAsync", GetDataAsync);
   Nan::SetPrototypeMethod(ctor, "getDataAsArray", GetDataAsArray);
+  Nan::SetPrototypeMethod(ctor, "getArray", GetArray);
   Nan::SetPrototypeMethod(ctor, "setData", SetData);
   Nan::SetPrototypeMethod(ctor, "getRegion", GetRegion);
   Nan::SetPrototypeMethod(ctor, "row", Row);
@@ -814,7 +815,7 @@ NAN_METHOD(Mat::GetDataAsArray) {
 	FF::TryCatch tryCatch("Mat::GetDataAsArray");
   cv::Mat mat = Mat::unwrapSelf(info);
   v8::Local<v8::Array> rowArray = Nan::New<v8::Array>(mat.size[0]);
-  
+
 	switch (mat.dims) {
 	case 2:  FF_MAT_APPLY_TYPED_OPERATOR(mat, rowArray, mat.type(), FF_JS_ARRAY_FROM_MAT_2D, FF::matGet);  break;
 	case 3:  FF_MAT_APPLY_TYPED_OPERATOR(mat, rowArray, mat.type(), FF_JS_ARRAY_FROM_MAT_3D, FF::matGet);  break;
@@ -823,6 +824,58 @@ NAN_METHOD(Mat::GetDataAsArray) {
   default: return tryCatch.throwError("not implemented yet - mat dims:" + std::to_string(mat.dims));
   }
   info.GetReturnValue().Set(rowArray);
+}
+
+NAN_METHOD(Mat::GetArray) {
+	FF::TryCatch tryCatch("Mat::GetArray");
+  int type = CV_32F;
+  if (info.Length() > 0) {
+    type = info[0]->ToInt32(Nan::GetCurrentContext()).ToLocalChecked()->Value();
+  }
+  cv::Mat mat = Mat::unwrapSelf(info);
+  int len = mat.total() * mat.elemSize();
+  v8::Local<v8::ArrayBuffer> arrayBuf = v8::ArrayBuffer::New(info.GetIsolate(), len);
+  memcpy(arrayBuf->Data(), mat.data, len);
+  switch (type) {
+    case CV_8U: {
+                   auto ret = v8::Uint8Array::New(arrayBuf, 0, len);
+                   info.GetReturnValue().Set(ret);
+                   break;
+                }
+    case CV_8S: {
+                   auto ret = v8::Int8Array::New(arrayBuf, 0, len);
+                   info.GetReturnValue().Set(ret);
+                   break;
+                }
+    case CV_16S: {
+                   auto ret = v8::Int16Array::New(arrayBuf, 0, len/2);
+                   info.GetReturnValue().Set(ret);
+                   break;
+                }
+    case CV_16U: {
+                   auto ret = v8::Uint16Array::New(arrayBuf, 0, len/2);
+                   info.GetReturnValue().Set(ret);
+                   break;
+                }
+    case CV_32S: {
+                   auto ret = v8::Int32Array::New(arrayBuf, 0, len / 4);
+                   info.GetReturnValue().Set(ret);
+                   break;
+                 }
+    case CV_32F: {
+                   auto ret = v8::Float32Array::New(arrayBuf, 0, len / 4);
+                   info.GetReturnValue().Set(ret);
+                   break;
+                 }
+    case CV_64F: {
+                   auto ret = v8::Float64Array::New(arrayBuf, 0, len / 8);
+                   info.GetReturnValue().Set(ret);
+                   break;
+                 }
+    default:
+                 info.GetReturnValue().Set(arrayBuf);
+                 return;
+  }
 }
 
 NAN_METHOD(Mat::SetData) {
